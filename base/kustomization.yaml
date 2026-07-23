@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- db-secret.yaml
+- db-pvc.yaml
+- db-deployment.yaml
+- db-service.yaml
+- redis-deployment.yaml
+- redis-service.yaml
+- worker-deployment.yaml
+- result-deployment.yaml
+- result-service.yaml
+- rollout.yaml
+- service.yaml
+- preview-service.yaml
+
+images:
+- name: schoolofdevops/vote
+  newName: <image>
+  newTag: e863922
