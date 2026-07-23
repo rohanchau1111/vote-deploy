@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db
+  labels:
+    app: db
+    tier: back
+spec:
+  serviceName: db-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+        tier: back
+    spec:
+      containers:
+      - name: db
+        image: postgres:15-alpine
+        envFrom:
+        - secretRef:
+            name: db-secret
+        env:
+        # The volume root holds lost+found on most CSI/ext4 volumes, and initdb
+        # refuses to initialise into a non-empty directory. Keep PGDATA one level down.
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        # Writes md5 into pg_hba.conf. Paired with the md5 verifier set by the
+        # db-initdb script — an md5 pg_hba line falls back to SCRAM on its own if
+        # the stored password is a SCRAM verifier.
+        - name: POSTGRES_HOST_AUTH_METHOD
+          value: md5
+        ports:
+        - containerPort: 5432
+          name: postgres
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - exec pg_isready -h 127.0.0.1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 6
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - exec pg_isready -h 127.0.0.1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 6
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        volumeMounts:
+        - name: db-data
+          mountPath: /var/lib/postgresql/data
+        - name: db-initdb
+          mountPath: /docker-entrypoint-initdb.d
+          readOnly: true
+      volumes:
+      - name: db-initdb
+        configMap:
+          name: db-initdb
+  volumeClaimTemplates:
+  - metadata:
+      name: db-data
+      labels:
+        app: db
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi

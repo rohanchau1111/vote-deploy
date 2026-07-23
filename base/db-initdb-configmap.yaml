@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-initdb
+  labels:
+    app: db
+data:
+  # <image>:v1 bundles a pg driver with no SCRAM support, so the superuser
+  # verifier has to be md5. initdb hashes --pwfile with password_encryption, which
+  # defaults to scram-sha-256 on PG14+, and initdb -c only exists from PG16 — so
+  # re-hash here instead. Only runs when the data directory is initialised empty.
+  10-md5-password.sql: |
+    SET password_encryption = 'md5';
+    ALTER USER postgres WITH PASSWORD 'postgres';
