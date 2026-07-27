@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: result
-        image: <image>:v1
+        image: initcron/result:v1
         ports:
         - containerPort: 80
           name: result

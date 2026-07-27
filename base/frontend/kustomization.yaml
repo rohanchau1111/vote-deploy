@@ -5,3 +5,9 @@ resources:
 - service-active.yaml
 - service-preview.yaml
 - ingress.yaml
+
+images:
+- name: schoolofdevops/vote
+  newName: initcron/vote
+  newTag: v8
+
