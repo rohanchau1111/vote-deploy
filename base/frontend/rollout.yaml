@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: vote
-        image: initcron/vote:v8
+        image: <imagerepo>/vote:v8
         imagePullPolicy: Always
         resources:
           requests:
