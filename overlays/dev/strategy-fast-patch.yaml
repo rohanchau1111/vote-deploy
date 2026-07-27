@@ -1,0 +1,10 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: vote
+spec:
+  replicas: 1
+  strategy:
+    blueGreen:
+      autoPromotionEnabled: true
+      autoPromotionSeconds: 5

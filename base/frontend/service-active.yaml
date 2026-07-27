@@ -2,11 +2,15 @@ apiVersion: v1
 kind: Service
 metadata:
   name: vote
+  labels:
+    app: vote
+    tier: front
 spec:
+  type: ClusterIP
   ports:
   - name: "80"
-    nodePort: 30000
     port: 80
     protocol: TCP
     targetPort: 80
-  type: NodePort
+  selector:
+    app: vote

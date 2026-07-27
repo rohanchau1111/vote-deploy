@@ -1,3 +1,28 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+  labels:
+    app: db
+    tier: back
+type: Opaque
+stringData:
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_DB: postgres
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-initdb
+  labels:
+    app: db
+    tier: back
+data:
+  10-md5-password.sql: |
+    SET password_encryption = 'md5';
+    ALTER USER postgres WITH PASSWORD 'postgres';
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -24,13 +49,8 @@ spec:
         - secretRef:
             name: db-secret
         env:
-        # The volume root holds lost+found on most CSI/ext4 volumes, and initdb
-        # refuses to initialise into a non-empty directory. Keep PGDATA one level down.
         - name: PGDATA
           value: /var/lib/postgresql/data/pgdata
-        # Writes md5 into pg_hba.conf. Paired with the md5 verifier set by the
-        # db-initdb script — an md5 pg_hba line falls back to SCRAM on its own if
-        # the stored password is a SCRAM verifier.
         - name: POSTGRES_HOST_AUTH_METHOD
           value: md5
         ports:

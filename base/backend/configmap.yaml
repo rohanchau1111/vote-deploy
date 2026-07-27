@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  labels:
+    app: result
+    tier: back
+data:
+  DB_HOST: "db"
+  REDIS_HOST: "redis"
+  PORT: "80"

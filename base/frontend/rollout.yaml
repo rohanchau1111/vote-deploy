@@ -1,10 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
+  name: vote
   labels:
     app: vote
     tier: front
-  name: vote
 spec:
   replicas: 4
   selector:
@@ -23,14 +23,13 @@ spec:
         tier: front
     spec:
       containers:
-      - image: schoolofdevops/vote:v8
-        name: vote
+      - name: vote
+        image: schoolofdevops/vote:v8
         imagePullPolicy: Always
-        resources: 
+        resources:
           requests:
             cpu: "50m"
             memory: "64Mi"
-          limits: 
+          limits:
             cpu: "250m"
             memory: "128Mi"
-
